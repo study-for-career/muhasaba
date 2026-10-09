@@ -370,7 +370,7 @@ function renderRankingTable(users) {
                         ${isCurrentUser
                 ? `<span class="text-xs font-semibold
                                           text-blue-600">
-                                   তুমি
+                                   আপনি
                                </span>`
                 : ""}
                     </div>
@@ -424,7 +424,7 @@ function renderMyPosition(users) {
     myScoreElement.textContent = formatScore(user.totalScore);
 
     myPositionText.textContent =
-        `তুমি বর্তমানে ${toBanglaNumber(rank)} নম্বর অবস্থানে আছো।`;
+        `আপনি বর্তমানে ${toBanglaNumber(rank)} নম্বর অবস্থানে আছেন।`;
 }
 
 
