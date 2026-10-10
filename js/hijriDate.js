@@ -3,7 +3,7 @@ const hijriDate = document.getElementById("hijriDate");
 // 0 = স্বাভাবিক
 // 1 = একদিন এগিয়ে
 // -1 = একদিন পিছিয়ে
-const dateAdjustment = 0;
+const dateAdjustment = -1;
 
 const arabicMonths = [
     "মুহররম",

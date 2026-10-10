@@ -544,11 +544,11 @@ function renderUsers() {
                     "btn btn-warning btn-xs",
                     () => resetOneTask(user, task)
                 ),
-                makeButton(
-                    "Delete task",
-                    "btn btn-error btn-outline btn-xs",
-                    () => deleteTask(task)
-                )
+                // makeButton(
+                //     "Delete task",
+                //     "btn btn-error btn-outline btn-xs",
+                //     () => deleteTask(task)
+                // )
             );
 
             row.appendChild(actions);
@@ -608,41 +608,41 @@ async function deleteUser(user) {
 // DELETE TASK FROM ALL USERS
 // ==================================================
 
-async function deleteTask(selectedTask) {
-    if (busy) return;
+// async function deleteTask(selectedTask) {
+//     if (busy) return;
 
-    const identity = taskIdentity(selectedTask);
-    const taskName = selectedTask.task || selectedTask.name || "এই টাস্ক";
+//     const identity = taskIdentity(selectedTask);
+//     const taskName = selectedTask.task || selectedTask.name || "এই টাস্ক";
 
-    const confirmed = confirm(
-        `"${taskName}" টাস্কটি সব ইউজারের তালিকা থেকে মুছে ফেলবে?\n\n` +
-        "এতে এই টাস্কের স্কোরসহ সংশ্লিষ্ট ডাটা মুছে যাবে।"
-    );
+//     const confirmed = confirm(
+//         `"${taskName}" টাস্কটি সব ইউজারের তালিকা থেকে মুছে ফেলবে?\n\n` +
+//         "এতে এই টাস্কের স্কোরসহ সংশ্লিষ্ট ডাটা মুছে যাবে।"
+//     );
 
-    if (!confirmed) return;
+//     if (!confirmed) return;
 
-    const oldUsers = usersData;
+//     const oldUsers = usersData;
 
-    usersData = usersData.map(user => ({
-        ...user,
-        tasks: (Array.isArray(user.tasks) ? user.tasks : [])
-            .filter(task => taskIdentity(task) !== identity)
-    }));
+//     usersData = usersData.map(user => ({
+//         ...user,
+//         tasks: (Array.isArray(user.tasks) ? user.tasks : [])
+//             .filter(task => taskIdentity(task) !== identity)
+//     }));
 
-    renderUsers();
-    updateStats();
+//     renderUsers();
+//     updateStats();
 
-    const saved = await persistUsers("টাস্ক সব ইউজার থেকে ডিলেট হয়েছে");
+//     const saved = await persistUsers("টাস্ক সব ইউজার থেকে ডিলেট হয়েছে");
 
-    if (!saved) {
-        usersData = oldUsers;
+//     if (!saved) {
+//         usersData = oldUsers;
 
-        renderUsers();
-        updateStats();
+//         renderUsers();
+//         updateStats();
 
-        alert("টাস্ক ডিলেট সেভ হয়নি। আগের ডাটা ফিরিয়ে দেওয়া হয়েছে।");
-    }
-}
+//         alert("টাস্ক ডিলেট সেভ হয়নি। আগের ডাটা ফিরিয়ে দেওয়া হয়েছে।");
+//     }
+// }
 
 // ==================================================
 // EDIT TASK / RULE
