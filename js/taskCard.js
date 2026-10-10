@@ -527,14 +527,11 @@ async function saveTaskScore(task, card, modal) {
     }
 }
 
-
-
 // ========================================
 // INITIALIZE TASK CARDS
 // ========================================
 
-
-function renderTaskCards() {
+function renderTaskCards(tasks = null) {
     if (!cardSection) {
         console.error('HTML-এ id="cardSection" পাওয়া যায়নি।');
         return;
@@ -546,29 +543,102 @@ function renderTaskCards() {
 
     cardSection.innerHTML = "";
 
-    // Login করা ইউজারের saved tasks
-    const savedTasks = loggedInUser?.tasks || [];
+    let tasksToRender;
 
-    // Default rules + saved scores
-    const tasksToRender = defaultTasks.map(defaultTask => {
-        const savedTask = savedTasks.find(
-            item =>
-                Number(item.taskId) === Number(defaultTask.taskId)
-        );
-
-        return {
-            ...defaultTask,
-            ...(savedTask || {}),
-            rule: defaultTask.rule,
-            score: Number(savedTask?.score ?? defaultTask.score ?? 0)
-        };
-    });
+    if (Array.isArray(tasks)) {
+        // JSONBin থেকে পাওয়া সর্বশেষ টাস্ক
+        tasksToRender = tasks;
+    } else if (loggedInUser && Array.isArray(loggedInUser.tasks)) {
+        tasksToRender = loggedInUser.tasks;
+    } else {
+        // লগইন না থাকলে ডিফল্ট টাস্ক
+        tasksToRender = defaultTasks;
+    }
 
     tasksToRender.forEach((task, index) => {
         createTaskCard(task, index);
     });
+
+    updateTotalScore(tasksToRender);
 }
 
+
+// ========================================
+// LOAD LATEST USER TASKS FROM JSONBIN
+// ========================================
+
+async function initializeTaskCards() {
+    const loggedInUser = JSON.parse(
+        localStorage.getItem("loggedInUser") || "null"
+    );
+
+    // লগইন করা না থাকলে ডিফল্ট টাস্ক দেখাবে
+    if (!loggedInUser?.email) {
+        renderTaskCards(defaultTasks);
+        return;
+    }
+
+    try {
+        const response = await fetch(BIN_URL, {
+            headers: {
+                "X-Access-Key": ACCESS_KEY
+            },
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(
+                `JSONBin থেকে ডেটা লোড করা যায়নি: ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+        const users = data.record?.users || [];
+
+        // বর্তমানে লগইন করা ইউজারকে খুঁজে বের করা
+        const latestUser = users.find(
+            user =>
+                String(user.email || "").toLowerCase() ===
+                String(loggedInUser.email).toLowerCase()
+        );
+
+        if (!latestUser) {
+            throw new Error(
+                "JSONBin-এ লগইন করা ইউজারকে পাওয়া যায়নি।"
+            );
+        }
+
+        // JSONBin-এর সর্বশেষ তথ্য localStorage-এ সংরক্ষণ
+        const updatedLoggedInUser = {
+            ...latestUser,
+            tasks: Array.isArray(latestUser.tasks)
+                ? latestUser.tasks
+                : []
+        };
+
+        localStorage.setItem(
+            "loggedInUser",
+            JSON.stringify(updatedLoggedInUser)
+        );
+
+        // সর্বশেষ টাস্কগুলো দিয়ে কার্ড তৈরি
+        renderTaskCards(updatedLoggedInUser.tasks);
+
+    } catch (error) {
+        console.error("Task loading error:", error);
+
+        // নেটওয়ার্ক সমস্যা হলে আগের সংরক্ষিত তথ্য দেখাবে
+        const cachedUser = JSON.parse(
+            localStorage.getItem("loggedInUser") || "null"
+        );
+
+        renderTaskCards(
+            Array.isArray(cachedUser?.tasks)
+                ? cachedUser.tasks
+                : defaultTasks
+        );
+    }
+}
 
 
 // ========================================
@@ -601,19 +671,8 @@ taskCardStyle.textContent = `
 document.head.appendChild(taskCardStyle);
 
 
-// Start
-renderTaskCards();
+// ========================================
+// INITIAL LOAD
+// ========================================
 
-
-
-function refreshTotalScore() {
-    const loggedInUser = JSON.parse(
-        localStorage.getItem("loggedInUser") || "null"
-    );
-
-    if (!loggedInUser?.tasks) return;
-
-    updateTotalScore(loggedInUser.tasks);
-}
-
-refreshTotalScore();
+initializeTaskCards();

@@ -104,7 +104,7 @@ const defaultTasks = [
     },
     {
         taskId: 10,
-        task: "হাঁটা ১০ মিনিট",
+        task: "শরীরচর্চা ১০ মিনিট",
         score: 0,
         rule: {
             type: "fixed",

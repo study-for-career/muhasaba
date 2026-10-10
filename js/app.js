@@ -36,8 +36,9 @@ function updateNavbar() {
         // -----------------------------
         // User Name
         // -----------------------------
-        userName.textContent = currentUser.name;
-        // totalScoreValue.textContent = totalScore;
+        if (userName) {
+            userName.textContent = currentUser.name;
+        }        // totalScoreValue.textContent = totalScore;
     }
 
 
